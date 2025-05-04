@@ -7,7 +7,7 @@ const RealTimeChart = ({ data }) => {
     <ResponsiveContainer width="100%" height={400}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
+        <XAxis dataKey="time" />
         <YAxis />
         <Tooltip />
         <Legend />
