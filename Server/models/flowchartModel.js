@@ -1,22 +1,24 @@
-const mongoose = require('mongoose');
+const mongoose=require('mongoose')
 
 const flowchartSchema = new mongoose.Schema({
-  title: { type: String, required: true },  // Title of the flowchart
+  title: { type: String, required: true },
   nodes: [{
-    id: { type: String, required: true },  // Unique ID for each node
-    label: { type: String, required: true },  // Label to describe the node
-    position: { x: { type: Number }, y: { type: Number } },  // Position of the node (x, y coordinates)
+    id: { type: String, required: true },
+    data: {
+      label: { type: String, required: true }
+    },
+    position: {
+      x: { type: Number, required: true },
+      y: { type: Number, required: true }
+    }
   }],
   edges: [{
-    source: { type: String, required: true },  // Source node ID
-    target: { type: String, required: true },  // Target node ID
-    label: { type: String },  // Optional label for the edge
+    id: { type: String },  // Optional but good to have
+    source: { type: String, required: true },
+    target: { type: String, required: true },
+    label: { type: String },
   }],
-  createdAt: { type: Date, default: Date.now },  // Date when the flowchart was created
-  updatedAt: { type: Date, default: Date.now },  // Date when the flowchart was last updated
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
-// Create the model based on the schema
-const Flowchart = mongoose.model('Flowchart', flowchartSchema);
-
-module.exports = Flowchart;

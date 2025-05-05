@@ -7,14 +7,13 @@ import ReactFlow, {
   addEdge,
 } from 'react-flow-renderer';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
 
 const Flowchart = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowchartId, setFlowchartId] = useState(null);
 
-  // Fetch or create flowchart
   useEffect(() => {
     const fetchOrCreateFlowchart = async () => {
       try {
@@ -27,11 +26,27 @@ const Flowchart = () => {
         if (Array.isArray(response.data) && response.data.length > 0) {
           const flowchart = response.data[0];
           setFlowchartId(flowchart._id);
-          setNodes(flowchart.nodes || []);
-          setEdges(flowchart.edges || []);
+
+          // Convert backend format to React Flow format
+          setNodes(
+            (flowchart.nodes || []).map((node) => ({
+              id: node.id,
+              data: { label: node.label },
+              position: node.position,
+            }))
+          );
+
+          setEdges(
+            (flowchart.edges || []).map((edge, index) => ({
+              id: `e${edge.source}-${edge.target}-${index}`,
+              source: edge.source,
+              target: edge.target,
+              label: edge.label || '',
+            }))
+          );
         } else {
           const createRes = await axios.post(
-            'http://localhost:3006/api/flowchart',
+            'http://localhost:3006/api/flowchart/create',
             { title: 'New Flowchart', nodes: [], edges: [] },
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -56,11 +71,26 @@ const Flowchart = () => {
 
   const handleSave = async () => {
     try {
+      console.log('Flowchart ID:', flowchartId);
+
       if (!flowchartId) return alert('No flowchart to update');
+
+      // Format before saving
+      const formattedNodes = nodes.map((node) => ({
+        id: node.id,
+        label: node.data.label,
+        position: node.position,
+      }));
+
+      const formattedEdges = edges.map((edge) => ({
+        source: edge.source,
+        target: edge.target,
+        label: edge.label || '',
+      }));
 
       await axios.put(
         `http://localhost:3006/api/flowchart/${flowchartId}`,
-        { nodes, edges },
+        { nodes: formattedNodes, edges: formattedEdges },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -75,7 +105,6 @@ const Flowchart = () => {
     }
   };
 
-  // Add new node
   const handleAddNode = () => {
     const newNode = {
       id: uuidv4(),

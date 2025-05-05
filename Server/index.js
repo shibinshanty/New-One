@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3006;
 // CORS configuration
 const corsOptions = {
   origin: 'http://localhost:5173', // Change this to your frontend URL
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST','PUT','DELETE'],
   allowedHeaders: ['Content-Type'],
 };
 
@@ -39,7 +39,7 @@ const server = app.listen(PORT, () => {
 
 const io = socketIo(server, {
   cors: {
-    origin: 'http://localhost:5173', // Change this to your frontend URL
+    origin: 'http://localhost:5173', 
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
   }
