@@ -6,4 +6,4 @@ exports.getSensorData = (req, res) => {
   
     res.json(sensorData);
   };
-  
+               
