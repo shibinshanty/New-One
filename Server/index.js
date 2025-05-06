@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const socketIo = require('socket.io');
 const userRoute = require('./routes/userRoute');
-const sensorRoute = require('./routes/sensorRoute');
 const flowchartRoute = require('./routes/flowchartRoute');
 const {verifyToken} = require('./middleware/authMiddleware');
 
@@ -19,12 +18,11 @@ const corsOptions = {
   allowedHeaders: ['Content-Type'],
 };
 
-app.use(cors(corsOptions)); // Apply CORS middleware
+app.use(cors(corsOptions)); 
 app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoute);
-app.use('/api/sensor', sensorRoute);
 app.use('/api/flowchart', verifyToken, flowchartRoute);  // Protected route
 
 // MongoDB Connection
