@@ -6,16 +6,17 @@ const cors = require('cors');
 const socketIo = require('socket.io');
 const userRoute = require('./routes/userRoute');
 const flowchartRoute = require('./routes/flowchartRoute');
-const {verifyToken} = require('./middleware/authMiddleware');
+const { verifyToken } = require('./middleware/authMiddleware');
+const { verifySocketToken } = require('./middleware/authMiddleware');  
 
 const app = express();
 const PORT = process.env.PORT || 3006;
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:5173', // Change this to your frontend URL
-  methods: ['GET', 'POST','PUT','DELETE'],
-  allowedHeaders: ['Content-Type'],
+  origin: 'http://localhost:5173', // Frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'], // Add 'Authorization' here
 };
 
 app.use(cors(corsOptions)); 
@@ -37,11 +38,13 @@ const server = app.listen(PORT, () => {
 
 const io = socketIo(server, {
   cors: {
-    origin: 'http://localhost:5173', 
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
   }
 });
 
-require('./utils/socket.js')(io);  // Socket logic
+// Apply Socket.IO token verification before handling any events
+io.use(verifySocketToken);  // Add the Socket.IO token verification middleware
 
+require('./routes/sensorSocket.js')(io);  // Socket logic

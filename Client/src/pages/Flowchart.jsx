@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -14,6 +14,7 @@ const Flowchart = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowchartId, setFlowchartId] = useState(null);
 
+  // Fetch or create flowchart
   useEffect(() => {
     const fetchOrCreateFlowchart = async () => {
       try {
@@ -27,7 +28,6 @@ const Flowchart = () => {
           const flowchart = response.data[0];
           setFlowchartId(flowchart._id);
 
-          // Convert backend format to React Flow format
           setNodes(
             (flowchart.nodes || []).map((node) => ({
               id: node.id,
@@ -62,7 +62,7 @@ const Flowchart = () => {
     };
 
     fetchOrCreateFlowchart();
-  }, [setNodes, setEdges]);
+  }, []);
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -71,24 +71,30 @@ const Flowchart = () => {
 
   const handleSave = async () => {
     try {
-      console.log('Flowchart ID:', flowchartId);
-
       if (!flowchartId) return alert('No flowchart to update');
-
-      // Format before saving
-      const formattedNodes = nodes.map((node) => ({
-        id: node.id,
-        label: node.data.label,
-        position: node.position,
-      }));
-
+  
+      // Ensure all nodes have a valid label, even if data is missing
+      const formattedNodes = nodes.map((node, index) => {
+        // Check if node.data exists and if label is missing
+        const label = node?.data?.label?.trim() || `Node ${index + 1}`; // Fallback if label is missing
+        return {
+          id: node.id,
+          data: { label }, // Ensure `data` object always has a label
+          position: node.position,
+        };
+      });
+  
       const formattedEdges = edges.map((edge) => ({
         source: edge.source,
         target: edge.target,
-        label: edge.label || '',
+        label: edge.label || '',  // Empty string if label is missing
       }));
-
-      await axios.put(
+  
+      console.log("Saving nodes:", formattedNodes);
+      console.log("Saving edges:", formattedEdges);
+  
+      // Make the API call to save the flowchart
+      const response = await axios.put(
         `http://localhost:3006/api/flowchart/${flowchartId}`,
         { nodes: formattedNodes, edges: formattedEdges },
         {
@@ -97,18 +103,26 @@ const Flowchart = () => {
           },
         }
       );
-
-      alert('Flowchart saved successfully!');
+  
+      // Check response and display a message
+      if (response.status === 200) {
+        alert('Flowchart saved successfully!');
+      } else {
+        console.log('Unexpected response:', response);
+        alert('Failed to save flowchart');
+      }
     } catch (error) {
-      console.error('Error saving flowchart:', error);
+      console.error('Error saving flowchart:', error.response || error);
       alert('Failed to save flowchart');
     }
   };
+  
 
   const handleAddNode = () => {
+    const label = `Node ${nodes.length + 1}`;
     const newNode = {
       id: uuidv4(),
-      data: { label: `Node ${nodes.length + 1}` },
+      data: { label },
       position: {
         x: Math.random() * 250,
         y: Math.random() * 250,

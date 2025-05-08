@@ -6,34 +6,55 @@ import DashboardNav from '../components/DashboardNav';
 const Dashboard = () => {
   const [sensorData, setSensorData] = useState([]);
   const socketRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:3006');
-    
-    // Listen for 'sensor-data' event from the backend
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      setLoading(false);
+      return;
+    }
+  
+    socketRef.current = io('http://localhost:3006', {
+      auth: {
+        token: token,
+      },
+    });
+  
     socketRef.current.on('sensor-data', (data) => {
+      setLoading(false);
       const newData = {
-        time: new Date().toLocaleTimeString(),  // Add a time stamp
+        time: new Date().toLocaleTimeString(),
         temperature: data.temperature,
         humidity: data.humidity,
       };
-
-      // Add new data to the state and limit to the latest 10 entries
       setSensorData((prev) => [...prev, newData].slice(-10));
     });
-
-    return () => socketRef.current.disconnect();
+  
+    socketRef.current.on('connect_error', (err) => {
+      console.error('Socket connection error:', err.message);
+      setLoading(false);
+    });
+  
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
-
+  
   return (
     <div className="min-h-screen bg-gray-100">
-      <DashboardNav />  {/* Assuming DashboardNav is another component */}
+      <DashboardNav />
       <main className="p-6">
         <h2 className="text-2xl font-bold mb-4">Live Sensor Data</h2>
-        <RealTimeChart data={sensorData} />
+        {loading ? <div>Loading...</div> : <RealTimeChart data={sensorData} />}
       </main>
     </div>
   );
+  
 };
 
 export default Dashboard;
+

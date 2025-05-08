@@ -45,7 +45,7 @@ function Navbar() {
               <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white hover:text-pink-700 transition duration-300">
                 <FaSignInAlt /> Login
               </Link>
-              <Link to="/signup" className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white hover:text-yellow-600 transition duration-300">
+              <Link to="/" className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white hover:text-yellow-600 transition duration-300">
                 <FaUserPlus /> Signup
               </Link>
             </>

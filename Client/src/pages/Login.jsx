@@ -25,11 +25,14 @@ const Login = () => {
       setMessage(response.data.message || "Login successful!");
       setErrorMessage("");
 
-      // Save email in cookie
+      // Store the JWT token in localStorage
+      localStorage.setItem('token', response.data.token);
+
+      // Optionally, store email in a cookie if needed (for reference or user info)
       Cookies.set('email', email);
 
       setTimeout(() => {
-        navigate('/dashboard'); // Change to '/dashboard' or your desired route
+        navigate('/dashboard'); // Redirect to dashboard or another route
       }, 1500);
     } catch (error) {
       console.error("Login error:", error);

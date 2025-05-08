@@ -1,7 +1,8 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose');
 
 const flowchartSchema = new mongoose.Schema({
   title: { type: String, required: true },
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   nodes: [{
     id: { type: String, required: true },
     data: {
@@ -13,12 +14,12 @@ const flowchartSchema = new mongoose.Schema({
     }
   }],
   edges: [{
-    id: { type: String },  // Optional but good to have
+    id: { type: String },
     source: { type: String, required: true },
     target: { type: String, required: true },
     label: { type: String },
-  }],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  }]
+}, { timestamps: true });
+
+module.exports = mongoose.model('Flowchart', flowchartSchema);
 
