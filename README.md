@@ -23,7 +23,7 @@ A full-stack IoT Dashboard application featuring:
 ### 1. Clone the Repository
 
 
-git clone https://github.com/shibinshanty/New-One.git
+git clone https://github.com/shibinshanty/Temperature-Humidity
 cd New-One
 
 
